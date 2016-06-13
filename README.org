@@ -1,0 +1,2 @@
+* github-marathon-notifier
+最近报名参加了github马拉松，为了防止忘了完成任务，撸了这个minor mode给我提醒。
