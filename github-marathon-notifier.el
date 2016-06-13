@@ -37,24 +37,6 @@
   :group 'github-marathon-notifier
   :type 'string)
 
-(defcustom github-marathon-notifier-mode-line
-  '(:eval
-    (let (unread-text help-text)
-      (cond ((= 0 github-marathon-notifier-commit-count)
-             (setq unread-text "-!"
-                   help-text "You haven't push any commit yet!"))
-            ((null github-marathon-notifier-commit-count)
-             (setq unread-text "-?"
-                   help-text "connect to github error!"))
-            (t
-             (setq unread-text ""
-                   help-text "Good job.")))
-      (propertize (concat " GMH" unread-text)
-                  'help-echo help-text)))
-  "Mode line lighter for Github Notifier."
-  :type 'sexp
-  :group 'github-marathon-notifier)
-
 (defcustom github-marathon-notifier-check-interval 600
   "Seconds after which the github marathon notifier will check if you have finished today's task."
   :type 'integer
@@ -65,6 +47,20 @@
 
 (defvar github-marathon-notifier-commit-count 0
   "How many github commit have been made today.")
+
+(defun github-marathon-notifier-indicator ()
+  (let (unread-text help-text)
+    (cond ((= 0 github-marathon-notifier-commit-count)
+           (setq unread-text "-!"
+                 help-text "You haven't push any commit yet!"))
+          ((null github-marathon-notifier-commit-count)
+           (setq unread-text "-?"
+                 help-text "connect to github error!"))
+          (t
+           (setq unread-text ""
+                 help-text "Good job.")))
+    (propertize (concat " GMH" unread-text)
+                'help-echo help-text)))
 
 (defun github-marathon-notifier-check-cb (_status)
   (set-buffer-multibyte t)
@@ -77,6 +73,7 @@
     (message "[github-marathon-notifier] Problem connecting to the server")
     (setq github-marathon-notifier-commit-count nil))
   (kill-buffer)
+  (setf (cadr (assoc 'github-marathon-notifier-mode minor-mode-alist)) (github-marathon-notifier-indicator))
   (force-mode-line-update t))
 
 (defun github-marathon-notifier-check (&optional user)
@@ -90,16 +87,13 @@
 With a prefix argument ARG, enable Github Notifier mode if ARG is
 positive, and disable it otherwise.  If called from Lisp, enable
 the mode if ARG is omitted or nil."
+  nil
+  " GMH-?"
   :global t :group 'github-marathon-notifier
-  (unless global-mode-string
-    (setq global-mode-string '("")))
-  (if (not github-marathon-notifier-mode)
-      (progn
-        (cancel-timer github-marathon-notifier-check-timer)
-        (setq global-mode-string (delq 'github-marathon-notifier-mode-line global-mode-string)
-              github-marathon-notifier-check-timer nil))
-    (add-to-list 'global-mode-string 'github-marathon-notifier-mode-line t)
-    (setq github-marathon-notifier-check-timer (run-with-timer 0 github-marathon-notifier-check-interval #'github-marathon-notifier-check))))
+  (if github-marathon-notifier-mode
+      (setq github-marathon-notifier-check-timer (run-with-timer 0 github-marathon-notifier-check-interval #'github-marathon-notifier-check))
+    (cancel-timer github-marathon-notifier-check-timer)
+    (setq github-marathon-notifier-check-timer nil)))
 
 (provide 'github-marathon-notifier)
 ;;; github-marathon-notifier.el ends here
