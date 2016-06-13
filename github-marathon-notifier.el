@@ -76,7 +76,8 @@
         (setq github-marathon-notifier-commit-count (string-to-number (match-string 1))))
     (message "[github-marathon-notifier] Problem connecting to the server")
     (setq github-marathon-notifier-commit-count nil))
-  (kill-buffer))
+  (kill-buffer)
+  (force-mode-line-update t))
 
 (defun github-marathon-notifier-check (&optional user)
   "Check weather USER has finished today's task"
