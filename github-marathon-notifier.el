@@ -45,22 +45,22 @@
 (defvar github-marathon-notifier-check-timer nil
   "Timer which perform the check action.")
 
-(defvar github-marathon-notifier-commit-count 0
+(defvar github-marathon-notifier-commit-count nil 
   "How many github commit have been made today.")
 
 (defun github-marathon-notifier-indicator ()
-  (let (unread-text help-text)
+  (let (text face)
     (cond ((= 0 github-marathon-notifier-commit-count)
-           (setq unread-text "-!"
-                 help-text "You haven't push any commit yet!"))
+           (setq text "-!"
+                 face font-lock-warning-face))
           ((null github-marathon-notifier-commit-count)
-           (setq unread-text "-?"
-                 help-text "connect to github error!"))
+           (setq text "-?"
+                 face font-lock-warning-face))
           (t
-           (setq unread-text ""
-                 help-text "Good job.")))
-    (propertize (concat " GMH" unread-text)
-                'help-echo help-text)))
+           (setq text ""
+                 face nil)))
+    (propertize (concat " GMH" text)
+                'face face)))
 
 (defun github-marathon-notifier-check-cb (_status)
   (set-buffer-multibyte t)
