@@ -66,7 +66,8 @@
   (setq github-marathon-notifier-check-timer (run-with-timer 0 interval #'github-marathon-notifier-check)))
 
 (defun github-marathon-notifier--stop-check ()
-  (cancel-timer github-marathon-notifier-check-timer)
+  (when (timerp github-marathon-notifier-check-timer)
+    (cancel-timer github-marathon-notifier-check-timer))
   (setq github-marathon-notifier-check-timer nil))
 
 (defun github-marathon-notifier-check-cb (_status)
