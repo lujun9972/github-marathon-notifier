@@ -48,12 +48,12 @@
 (defvar github-marathon-notifier-commit-count nil 
   "How many github commit have been made today.")
 
-(defun github-marathon-notifier-indicator ()
+(defun github-marathon-notifier-indicator (commit-count)
   (let (text face)
-    (cond ((equal 0 github-marathon-notifier-commit-count)
+    (cond ((equal 0 commit-count)
            (setq text "-!"
                  face font-lock-warning-face))
-          ((null github-marathon-notifier-commit-count)
+          ((null commit-count)
            (setq text "-?"
                  face font-lock-warning-face))
           (t
@@ -61,6 +61,13 @@
                  face nil)))
     (propertize (concat " GMH" text)
                 'face face)))
+
+(defun github-marathon-notifier--start-check (interval)
+  (setq github-marathon-notifier-check-timer (run-with-timer 0 interval #'github-marathon-notifier-check)))
+
+(defun github-marathon-notifier--stop-check ()
+  (cancel-timer github-marathon-notifier-check-timer)
+  (setq github-marathon-notifier-check-timer nil))
 
 (defun github-marathon-notifier-check-cb (_status)
   (set-buffer-multibyte t)
@@ -73,8 +80,14 @@
     (message "[github-marathon-notifier] Problem connecting to the server")
     (setq github-marathon-notifier-commit-count nil))
   (kill-buffer)
-  (setf (cadr (assoc 'github-marathon-notifier-mode minor-mode-alist)) (github-marathon-notifier-indicator))
-  (force-mode-line-update t))
+  (setf (cadr (assoc 'github-marathon-notifier-mode minor-mode-alist)) (github-marathon-notifier-indicator github-marathon-notifier-commit-count))
+  (force-mode-line-update t)
+  (when (and (numberp github-marathon-notifier-commit-count)
+             (> github-marathon-notifier-commit-count 0))
+    ;; 若今天已经签到成功，则今天不用再做检查了
+    (github-marathon-notifier--stop-check)
+    ;; 第二天开始重新开始检查
+    (run-at-time "00:00am" nil #'github-marathon-notifier--start-check)))
 
 (defun github-marathon-notifier-check (&optional user)
   "Check weather USER has finished today's task"
@@ -91,9 +104,8 @@ the mode if ARG is omitted or nil."
   " GMH-?"
   :global t :group 'github-marathon-notifier
   (if github-marathon-notifier-mode
-      (setq github-marathon-notifier-check-timer (run-with-timer 0 github-marathon-notifier-check-interval #'github-marathon-notifier-check))
-    (cancel-timer github-marathon-notifier-check-timer)
-    (setq github-marathon-notifier-check-timer nil)))
+      (github-marathon-notifier--start-check github-marathon-notifier-check-interval)
+    (github-marathon-notifier--stop-check)))
 
 (provide 'github-marathon-notifier)
 ;;; github-marathon-notifier.el ends here
