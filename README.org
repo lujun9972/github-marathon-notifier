@@ -3,11 +3,11 @@
 
 当今天尚未提交任何commit到github时，会在modeline上用 =font-lock-warning-face= 显示“GMH-!”，否则用默认face显示为"GMH"
 ** 当天尚未签到时：
-[[file:./]]warn.png
+[[file:./warn.png]]
 ** 连接github失败时：
-[[file:./]]connection_broken.png
+[[file:./connection_broken.png]]
 ** 当天已经签到时：
-[[file:./]]mark_done.png
+[[file:./mark_done.png]]
 * Usage
 1. 配置 =github-marathon-notifier-user= 为github的用户名，默认为当前的登录用户名
 2. 设置 =github-marathon-notifier-check-interval= 为检查的间隔时间，默认为10分钟
