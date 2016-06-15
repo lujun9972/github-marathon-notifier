@@ -70,6 +70,10 @@
     (cancel-timer github-marathon-notifier-check-timer))
   (setq github-marathon-notifier-check-timer nil))
 
+(defun github-marathon-notifier--update-modeline (indicator)
+  (setf (cadr (assoc 'github-marathon-notifier-mode minor-mode-alist)) indicator)
+  (force-mode-line-update t))
+
 (defun github-marathon-notifier-check-cb (_status)
   (set-buffer-multibyte t)
   (if (string-match "200 OK" (buffer-string))
@@ -81,8 +85,7 @@
     (message "[github-marathon-notifier] Problem connecting to the server")
     (setq github-marathon-notifier-commit-count nil))
   (kill-buffer)
-  (setf (cadr (assoc 'github-marathon-notifier-mode minor-mode-alist)) (github-marathon-notifier-indicator github-marathon-notifier-commit-count))
-  (force-mode-line-update t)
+  (github-marathon-notifier--update-modeline (github-marathon-notifier-indicator github-marathon-notifier-commit-count))
   (when (and (numberp github-marathon-notifier-commit-count)
              (> github-marathon-notifier-commit-count 0))
     ;; 若今天已经签到成功，则今天不用再做检查了
@@ -95,6 +98,7 @@
   (let* ((user (or user github-marathon-notifier-user))
          (condibutions-url (format "https://github.com/users/%s/contributions" user)))
     (url-retrieve condibutions-url #'github-marathon-notifier-check-cb nil t t)))
+
 
 (define-minor-mode github-marathon-notifier-mode
   "Toggle github notifications count display in mode line (Github Notifier mode).
