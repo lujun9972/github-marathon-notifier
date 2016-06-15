@@ -50,7 +50,7 @@
 
 (defun github-marathon-notifier-indicator ()
   (let (text face)
-    (cond ((= 0 github-marathon-notifier-commit-count)
+    (cond ((equal 0 github-marathon-notifier-commit-count)
            (setq text "-!"
                  face font-lock-warning-face))
           ((null github-marathon-notifier-commit-count)
