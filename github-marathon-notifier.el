@@ -88,7 +88,7 @@
     ;; 若今天已经签到成功，则今天不用再做检查了
     (github-marathon-notifier--stop-check)
     ;; 第二天开始重新开始检查
-    (run-at-time "00:00am" nil #'github-marathon-notifier--start-check)))
+    (run-at-time "00:00am" nil #'github-marathon-notifier--start-check github-marathon-notifier-check-interval)))
 
 (defun github-marathon-notifier-check (&optional user)
   "Check weather USER has finished today's task"
