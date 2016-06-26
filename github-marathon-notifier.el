@@ -26,7 +26,8 @@
 ;;
 ;;   M-x github-marathon-notifier-mode
 
-;;; Code:(require 'url)
+;;; Code:
+(require 'url)
 
 (defgroup github-marathon-notifier nil
   "Github Marathon Notifier"
